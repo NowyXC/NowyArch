@@ -1,0 +1,5 @@
+<resources>
+    <string name="arch_app_name">arch</string>
+    <string name="arch_loading">加载中…</string>
+
+</resources>
