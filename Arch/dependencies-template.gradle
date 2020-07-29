@@ -28,6 +28,8 @@ dependencies {
     // network
     //自定义了retrofit的返回值，支持协程和流式请求
     //https://github.com/skydoves/Sandwich
+    // whatIf
+    api "com.github.skydoves:whatif:$versions.whatIf"
     api "com.github.skydoves:sandwich:$versions.sandwich"
     api "com.squareup.retrofit2:retrofit:$versions.retrofit"
     api "com.squareup.retrofit2:converter-moshi:$versions.moshiConverter"

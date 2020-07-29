@@ -20,21 +20,23 @@ import java.util.concurrent.TimeUnit
  * @UpdateRemark:   更新说明
  * @Version:        1.0
  */
-class RetrofitClient {
+class RetrofitClient(BASE_URL :String) {
     companion object{
-        var BASE_URL = "";
         const val DEFAULT_READ_TIMEOUT_MILLIS = 15L
         const val DEFAULT_WRITE_TIMEOUT_MILLIS = 20L
         const val DEFAULT_CONNECT_TIMEOUT_MILLIS = 20L
 //        const val HTTP_RESPONSE_DISK_CACHE_MAX_SIZE = 10 * 1024 * 1024.toLong()
 
-        fun getInstance() = SingletonHolder.INSTANCE
-        private lateinit var retrofit: Retrofit
+//        fun getInstance() = SingletonHolder.INSTANCE
+
     }
 
-    private object SingletonHolder {
-        val INSTANCE = RetrofitClient()
-    }
+//    private object SingletonHolder {
+//        val INSTANCE = RetrofitClient()
+//    }
+
+    private var retrofit: Retrofit
+
 
     init {
         retrofit = Retrofit.Builder()
@@ -43,6 +45,11 @@ class RetrofitClient {
             .addCallAdapterFactory(CoroutinesResponseCallAdapterFactory())
             .baseUrl(BASE_URL)
             .build()
+    }
+
+
+    fun <T> createService(clazz: Class<T>): T {
+        return retrofit.create(clazz)
     }
 
 

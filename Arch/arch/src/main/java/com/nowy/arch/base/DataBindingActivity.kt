@@ -90,16 +90,6 @@ abstract class DataBindingActivity<Binding : ViewDataBinding>:BasicActivity() {
 
 
 
-    @MainThread
-    inline fun <reified VM : ViewModel> ComponentActivity.viewModels(
-        noinline factoryProducer: (() -> ViewModelProvider.Factory)? = null
-    ): Lazy<VM> {
-        val factoryPromise = factoryProducer ?: {
-            defaultViewModelProviderFactory
-        }
-
-        return ViewModelLazy(VM::class, { viewModelStore }, factoryPromise)
-    }
 
     /**
      * 通过dataBinding绑定界面

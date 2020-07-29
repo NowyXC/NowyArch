@@ -28,6 +28,9 @@ ext.versions = [
     retrofit                : '2.9.0',
     okhttp                  : '4.7.2',
     sandwich                : '1.0.4',
+    // whatIf
+    whatIf                  : '1.0.4',
+
     // moshi
     moshi                   : '1.9.2',
     moshiConverter          : '2.7.2',
