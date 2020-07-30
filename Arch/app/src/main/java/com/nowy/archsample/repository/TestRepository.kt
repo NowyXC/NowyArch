@@ -42,21 +42,8 @@ class TestRepository(private val testApiClient: TestApiClient) {
             }
     }.flowOn(Dispatchers.IO)
 
-    suspend fun fetchServerConfig2( onSuccess: () -> Unit,
-                                    onError: (String) -> Unit) :AicCloudServerConfigVO{
-        val response = testApiClient.fetchServerConfig()
-        response
-            .suspendOnSuccess {
-                data.whatIfNotNull { response ->
-                    onSuccess()
-                }
-             }
-            .onError {
-                onError(message())
-            }
-            .onException {
-                onError(message())
-            }
-    }
+
+
+
 
 }

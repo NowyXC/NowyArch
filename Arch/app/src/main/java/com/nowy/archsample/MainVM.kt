@@ -5,6 +5,14 @@ import com.nowy.arch.base.BaseViewModel
 import com.nowy.archsample.model.AicCloudServerConfigVO
 import com.nowy.archsample.network.TestApiClient
 import com.nowy.archsample.repository.TestRepository
+import com.skydoves.sandwich.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.withContext
+import okhttp3.internal.wait
 
 /**
  *
@@ -50,13 +58,61 @@ class MainVM:BaseViewModel() {
                 onError = { defUIEvent.shortToast.value = "error" }
             )
         }
+
+
+
+       fetch(
+            action = {
+                TestApiClient.getInstance().fetchServerConfig()
+            },
+            success = {
+                mainServerConfigLiveData.value = it.data
+            }
+        )
     }
 
-    fun test2(){
-        launchUI(){
-            mainServerConfigLiveData.value = testRepository.fetchServerConfig2()
+
+
+    fun <T> fetch(
+        action: suspend CoroutineScope.() -> ApiResponse<T>,
+        success:suspend CoroutineScope.(ApiResponse.Success<T>) -> Unit,
+        error: suspend CoroutineScope.(ApiResponse<T>) -> Unit = {
+            defUIEvent.shortToast.value = "${it}"
+        },
+        complete: suspend CoroutineScope.() -> Unit = {
+            if(showDialog) defUIEvent.isLoading.value = false
+        },
+        showDialog: Boolean = true
+    ){
+        if(showDialog) defUIEvent.isLoading.value = true
+        fetchData(action,success,error, complete)
+    }
+
+    private fun <T> fetchData(
+        action: suspend CoroutineScope.() -> ApiResponse<T>,
+        success:suspend CoroutineScope.(ApiResponse.Success<T>) -> Unit,
+        error: suspend CoroutineScope.(ApiResponse<T>) -> Unit = {},
+        complete: suspend CoroutineScope.() -> Unit = {}
+    ){
+        launchUI {
+            withContext(Dispatchers.IO){ action() }
+                .suspendOnSuccess {
+                    success(this)
+                    complete()
+                }
+                .suspendOnError {
+                    error(this)
+                    complete()
+                }
+                .suspendOnException {
+                    error(this)
+                    complete()
+                }
         }
     }
+
+
+
 
     override fun onCleared() {
         super.onCleared()
