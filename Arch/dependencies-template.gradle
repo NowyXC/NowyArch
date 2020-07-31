@@ -61,7 +61,7 @@ dependencies {
     api "com.github.CymChad:BaseRecyclerViewAdapterHelper:$versions.BRVAH"
 
     //material-dialogs
-    api  "com.afollestad.material-dialogs:lifecycle:$versions.materialDialogs"
+    api "com.afollestad.material-dialogs:lifecycle:$versions.materialDialogs"
     api "com.afollestad.material-dialogs:core:$versions.materialDialogs"
 
 

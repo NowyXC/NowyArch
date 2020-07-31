@@ -4,11 +4,16 @@ import android.os.Message
 import androidx.lifecycle.*
 import com.blankj.utilcode.util.Utils
 import com.nowy.arch.livedata.SingleLiveData
+import com.skydoves.sandwich.ApiResponse
+import com.skydoves.sandwich.suspendOnError
+import com.skydoves.sandwich.suspendOnException
+import com.skydoves.sandwich.suspendOnSuccess
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  *
@@ -28,6 +33,25 @@ import kotlinx.coroutines.launch
  *          onError = { toastLiveData.postValue(it) }
  *      ).asLiveData()
  *  }
+ *
+ * 网络调用示例2 （封装）：
+ * fetch(
+ *  action = {
+ *      TestApiClient.getInstance().fetchServerConfig()
+ *  },
+ *  success = {
+ *      LogUtils.e("nowy","当前线程::${Thread.currentThread().name} success")
+ *      mainServerConfigLiveData.value = it.data
+ *  },
+ *  error = {
+ *      LogUtils.e("nowy","当前线程::${Thread.currentThread().name} error")
+ *  },
+ *  complete = {
+ *      LogUtils.e("nowy","当前线程::${Thread.currentThread().name} complete")
+ *  }
+ *  ,
+ *  showDialog = true
+ *  )
  *
  *
  *
@@ -56,7 +80,7 @@ import kotlinx.coroutines.launch
  * @UpdateRemark:   更新说明
  * @Version:        1.0
  */
-open class BaseViewModel:AndroidViewModel(Utils.getApp()) {
+open class BaseViewModel:ViewModel() {
     val defUIEvent: DefUIEvent by lazy { DefUIEvent() }
 
 
@@ -84,6 +108,63 @@ open class BaseViewModel:AndroidViewModel(Utils.getApp()) {
             emit(block())
         }
     }
+
+    /**
+     * @see fetchData
+     */
+    fun <T> fetch(
+        action: suspend CoroutineScope.() -> ApiResponse<T>,
+        success:suspend CoroutineScope.(ApiResponse.Success<T>) -> Unit,
+        error: suspend CoroutineScope.(ApiResponse<T>) -> Unit = {
+            defUIEvent.shortToast.value = "${it}"
+        },
+        complete: suspend CoroutineScope.() -> Unit = {},
+        showDialog: Boolean = true
+    ){
+        if(showDialog) defUIEvent.isLoading.postValue(true)
+        fetchData(
+            action,
+            success,
+            error,
+            complete = {
+                defUIEvent.isLoading.postValue(false)
+                complete()
+            }
+        )
+    }
+
+
+    /**
+     * 网络请求封装
+     * 主要处理ApiResponse
+     *  -> action: 网络请求操作（IO线程）
+     *  -> success: 网络请求成功 （主线程）
+     *  -> error: 网络请求失败 （主线程）
+     *  -> complete: 网络请求完成（成功和失败都会调用） （主线程）
+     */
+    private fun <T> fetchData(
+        action: suspend CoroutineScope.() -> ApiResponse<T>,
+        success:suspend CoroutineScope.(ApiResponse.Success<T>) -> Unit,
+        error: suspend CoroutineScope.(ApiResponse<T>) -> Unit = {},
+        complete: suspend CoroutineScope.() -> Unit = {}
+    ){
+        launchUI {
+            withContext(Dispatchers.IO){ action() }
+                .suspendOnSuccess {
+                    success(this)
+                    complete()
+                }
+                .suspendOnError {
+                    error(this)
+                    complete()
+                }
+                .suspendOnException {
+                    error(this)
+                    complete()
+                }
+        }
+    }
+
 
 
     inner class DefUIEvent {

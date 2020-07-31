@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <paths>
+        <!-- Context.getFilesDir() + "/path/" -->
+        <files-path
+            name="my_files"
+            path="nowy/"/>
+
+        <!-- Context.getCacheDir() + "/path/" -->
+        <cache-path
+            name="my_cache"
+            path="nowy/"/>
+
+        <!-- Context.getExternalFilesDir(null) + "/path/" -->
+        <external-files-path
+            name="my_external_files_path"
+            path="nowy/"/>
+        <!-- Context.getExternalCacheDir() + "/path/" -->
+        <external-cache-path
+            name="my_external_cache_path"
+            path="nowy/" />
+
+        <!-- Environment.getExternalStorageDirectory() + "/path/" -->
+        <external-path
+            name="my_external_path"
+            path="nowy/"/>
+
+        <!-- Environment.getExternalStorageDirectory() + "/path/" -->
+        <external-path
+            name="files_root"
+            path="Android/data/com.nowy.arch/"/>
+
+        <!-- path设置为'.'时代表整个存储卡 Environment.getExternalStorageDirectory() + "/path/"   -->
+        <external-path
+            name="external_storage_root"
+            path="."/>
+    </paths>
+</resources>

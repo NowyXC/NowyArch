@@ -1,5 +1,6 @@
 package com.nowy.arch.network
 
+import android.util.Log
 import com.blankj.utilcode.util.LogUtils
 import com.skydoves.sandwich.coroutines.CoroutinesResponseCallAdapterFactory
 import okhttp3.ConnectionPool
@@ -22,13 +23,18 @@ import java.util.concurrent.TimeUnit
  */
 class RetrofitClient(BASE_URL :String) {
     companion object{
+        var DEBUG = true
+        var TAG :String  = "arch::net"
         const val DEFAULT_READ_TIMEOUT_MILLIS = 15L
         const val DEFAULT_WRITE_TIMEOUT_MILLIS = 20L
         const val DEFAULT_CONNECT_TIMEOUT_MILLIS = 20L
 //        const val HTTP_RESPONSE_DISK_CACHE_MAX_SIZE = 10 * 1024 * 1024.toLong()
 
 //        fun getInstance() = SingletonHolder.INSTANCE
-
+        fun config(isDebug:Boolean,tag:String = TAG){
+            DEBUG = isDebug
+            TAG = tag
+        }
     }
 
 //    private object SingletonHolder {
@@ -58,7 +64,15 @@ class RetrofitClient(BASE_URL :String) {
             .connectTimeout(DEFAULT_CONNECT_TIMEOUT_MILLIS, TimeUnit.SECONDS)
             .readTimeout(DEFAULT_READ_TIMEOUT_MILLIS,TimeUnit.SECONDS)
             .writeTimeout(DEFAULT_WRITE_TIMEOUT_MILLIS, TimeUnit.SECONDS)
-            .addNetworkInterceptor(HttpLoggingInterceptor(getLogger()))
+            .addInterceptor(
+                HttpLoggingInterceptor(getLogger())
+                .setLevel(
+                    if(DEBUG){
+                        HttpLoggingInterceptor.Level.BODY
+                    }else{
+                        HttpLoggingInterceptor.Level.NONE
+                    }
+                ))
             .connectionPool(ConnectionPool(8, 15, TimeUnit.SECONDS))
             .build()
     }
@@ -67,10 +81,10 @@ class RetrofitClient(BASE_URL :String) {
         return object :HttpLoggingInterceptor.Logger{
             override fun log(message: String) {
                 try {
-                    LogUtils.dTag("Network",message)
+                    Log.i(TAG,message)
                 }catch (e:Exception){
-                    e.printStackTrace();
-                    LogUtils.eTag("Network",message)
+                    e.printStackTrace()
+                    Log.e(TAG,message)
                 }
             }
         }
