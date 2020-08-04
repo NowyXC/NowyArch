@@ -1,5 +1,7 @@
 package com.nowy.arch
 
+import com.blankj.utilcode.util.EncodeUtils
+import com.blankj.utilcode.util.EncryptUtils
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -14,4 +16,6 @@ class ExampleUnitTest {
     fun addition_isCorrect() {
         assertEquals(4, 2 + 2)
     }
+
+   
 }
